@@ -1,72 +1,62 @@
 import sys
 import os
-
-# Ensure the project root is in the Python path
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-
 import numpy as np
 import matplotlib.pyplot as plt
 from lab02.linalg_interp import cubic_spline
 
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 def load_data(file_path):
     """
     Loads data from a file, skipping commented lines and detecting delimiters.
-
-    Parameters:
-        file_path (str): Path to the data file.
-
-    Returns:
-        numpy.ndarray: Data array loaded from the file.
     """
-    try:
-        with open(file_path) as f:
-            for line in f:
-                if not line.startswith("#"):  # Skip commented lines
-                    delimiter = ',' if ',' in line else '\t'
-                    break
-        return np.loadtxt(file_path, delimiter=delimiter, comments="#")
-    except Exception as e:
-        print(f"Error loading data from {file_path}: {e}")
-        raise
+    with open(file_path) as f:
+        for line in f:
+            if not line.startswith("#"):
+                delimiter = ',' if ',' in line else '\t'
+                break
+    return np.loadtxt(file_path, delimiter=delimiter, comments="#")
 
-
-def generate_spline_plot(xd, yd, title, output_file):
+def generate_subplots(xd, yd, title_prefix, output_file):
     """
-    Generates a cubic spline plot for the given data and saves it to a file.
-
-    Parameters:
-        xd (array): Independent variable (x-axis data).
-        yd (array): Dependent variable (y-axis data).
-        title (str): Title for the plot.
-        output_file (str): Path to save the plot.
+    Generates a 3×2 grid of plots for linear, quadratic, and cubic splines for both datasets.
     """
-    x_new = np.linspace(xd[0], xd[-1], 100)
-    spline_func = cubic_spline(xd, yd)
-    y_new = spline_func(x_new)
+    fig, axes = plt.subplots(3, 2, figsize=(12, 15))
+    spline_orders = [1, 2, 3]
+    datasets = [("Water", xd[0], yd[0]), ("Air", xd[1], yd[1])]
 
-    # Plotting
-    plt.figure(figsize=(10, 6))
-    plt.scatter(xd, yd, color='red', label='Data points')
-    plt.plot(x_new, y_new, label="Cubic Spline", color='blue')
-    plt.title(title, fontsize=14)
-    plt.xlabel("Temperature (°C)")
-    plt.ylabel("Density")
-    plt.legend()
-    plt.grid()
+    for i, (dataset_name, x_data, y_data) in enumerate(datasets):
+        for j, order in enumerate(spline_orders):
+            x_new = np.linspace(x_data[0], x_data[-1], 100)
+            if order == 1:
+                spline_func = lambda x: np.interp(x, x_data, y_data)  # Linear spline
+            elif order == 2:
+                spline_func = cubic_spline(x_data, y_data, order=2)  # Quadratic spline
+            elif order == 3:
+                spline_func = cubic_spline(x_data, y_data, order=3)  # Cubic spline
+
+            y_new = spline_func(x_new)
+            ax = axes[j, i]
+            ax.scatter(x_data, y_data, color='red', label='Data points')
+            ax.plot(x_new, y_new, color='blue', label=f'Order {order} Spline')
+            ax.set_title(f"{title_prefix} ({dataset_name}) - Order {order}")
+            ax.set_xlabel("Temperature (°C)")
+            ax.set_ylabel("Density")
+            ax.legend()
+            ax.grid()
+
     plt.tight_layout()
     plt.savefig(output_file)
     plt.show()
-    print(f"Plot saved to {output_file}")
-
+    print(f"Grid of plots saved to {output_file}")
 
 if __name__ == "__main__":
-    base_dir = os.path.dirname(os.path.dirname(__file__))  # Go to the root of the project
-    data_dir = os.path.join(base_dir, "data")  # Correctly locate the "data" folder at the root
-    output_dir = os.path.join(base_dir, "figures")  # Save figures in the "figures" folder
+    base_dir = os.path.dirname(os.path.dirname(__file__))
+    data_dir = os.path.join(base_dir, "data")
+    output_dir = os.path.join(base_dir, "figures")
     os.makedirs(output_dir, exist_ok=True)
 
-    # Load data files
+    # Load data
     water_data = load_data(os.path.join(data_dir, "water_density_vs_temp_usgs.txt"))
     air_data = load_data(os.path.join(data_dir, "air_density_vs_temp_eng_toolbox.txt"))
 
@@ -74,6 +64,10 @@ if __name__ == "__main__":
     xd_water, yd_water = water_data[:, 0], water_data[:, 1]
     xd_air, yd_air = air_data[:, 0], air_data[:, 1]
 
-    # Generate and save plots
-    generate_spline_plot(xd_water, yd_water, "Water Density", os.path.join(output_dir, "water_density_splines.png"))
-    generate_spline_plot(xd_air, yd_air, "Air Density", os.path.join(output_dir, "air_density_splines.png"))
+    # Generate and save a 3×2 grid of plots
+    generate_subplots(
+        xd=[xd_water, xd_air],
+        yd=[yd_water, yd_air],
+        title_prefix="Density vs. Temperature",
+        output_file=os.path.join(output_dir, "density_splines_grid.png")
+    )
