@@ -1,7 +1,9 @@
 import sys
 import os
 
+# Ensure the project root is in the Python path
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
 import numpy as np
 import matplotlib.pyplot as plt
 from lab02.linalg_interp import cubic_spline
@@ -59,9 +61,9 @@ def generate_spline_plot(xd, yd, title, output_file):
 
 
 if __name__ == "__main__":
-    base_dir = os.path.dirname(__file__)
-    data_dir = os.path.join(base_dir, "data")
-    output_dir = os.path.join(base_dir, "figures")
+    base_dir = os.path.dirname(os.path.dirname(__file__))  # Go to the root of the project
+    data_dir = os.path.join(base_dir, "data")  # Correctly locate the "data" folder at the root
+    output_dir = os.path.join(base_dir, "figures")  # Save figures in the "figures" folder
     os.makedirs(output_dir, exist_ok=True)
 
     # Load data files

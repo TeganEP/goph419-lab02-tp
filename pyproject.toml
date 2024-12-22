@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lab02_package"
+version = "0.1.0"
+description = "A package for linear algebra interpolation in Lab 02"
+readme = "README.md"
+authors = [{name = "Tegan Potvin", email = "tegan.potvin1@ucalgary.ca"}]
+requires-python = ">=3.8"
+dependencies = [
+    "numpy>=1.21",
+    "matplotlib>=3.4",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/TeganEP/goph419-lab002-tp"
+
