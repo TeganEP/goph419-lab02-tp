@@ -6,6 +6,7 @@ from lab02.linalg_interp import cubic_spline
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
+
 def load_data(file_path):
     """
     Loads data from a file, skipping commented lines and detecting delimiters.
@@ -16,6 +17,7 @@ def load_data(file_path):
                 delimiter = ',' if ',' in line else '\t'
                 break
     return np.loadtxt(file_path, delimiter=delimiter, comments="#")
+
 
 def generate_subplots(xd, yd, title_prefix, output_file):
     """
@@ -49,6 +51,7 @@ def generate_subplots(xd, yd, title_prefix, output_file):
     plt.savefig(output_file)
     plt.show()
     print(f"Grid of plots saved to {output_file}")
+
 
 if __name__ == "__main__":
     base_dir = os.path.dirname(os.path.dirname(__file__))
